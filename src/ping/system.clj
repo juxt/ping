@@ -6,6 +6,7 @@
    [aero.core :as aero]
    [clojure.java.io :as io]
    [com.stuartsierra.component :refer [system-map system-using]]
+   [ping.selmer :refer [new-selmer]]
    [ping.web-server :refer [new-web-server]]))
 
 (defn config
@@ -26,6 +27,7 @@
   [config]
   (system-map
    :web-server (new-web-server)
+   :selmer (new-selmer)
    :port 3000))
 
 (defn new-dependency-map
