@@ -7,11 +7,8 @@
    [clojure.tools.logging :refer :all]
    [com.stuartsierra.component :refer [Lifecycle using]]
    [clojure.java.io :as io]
-   [ping.sources :refer [source-routes]]
    [hiccup.core :refer [html]]
-   [ping.hello :refer [hello-routes]]
    [schema.core :as s]
-   [selmer.parser :as selmer]
    [yada.resources.webjar-resource :refer [new-webjar-resource]]
    [yada.yada :refer [handler resource] :as yada]))
 
@@ -24,9 +21,7 @@
        :methods
        {:get
         {:produces #{"text/html"}
-         :response (fn [ctx]
-                     (selmer/render-file "index.html" {:title "Ping Home"
-                                                       :ctx ctx}))}}})]
+         :response (fn [ctx] (io/file "assets/index.html"))}}})]
 
     ["" (assoc (yada/redirect :ping.resources/index) :id :ping.resources/content)]
 
@@ -42,9 +37,6 @@
   [config]
   [""
    [
-    ;; Hello World!
-    (hello-routes)
-
     ;; Our content routes, and potentially other routes.
     (content-routes)
 
@@ -54,7 +46,6 @@
 
 (s/defrecord WebServer [host :- s/Str
                         port :- s/Int
-                        db
                         listener]
   Lifecycle
   (start [component]

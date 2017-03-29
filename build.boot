@@ -1,24 +1,6 @@
 ;; Copyright © 2016, JUXT LTD.
 (require '[clojure.java.shell :as sh])
 
-(defn next-version [version]
-  (when version
-    (let [[a b] (next (re-matches #"(.*?)([\d]+)" version))]
-      (when (and a b)
-        (str a (inc (Long/parseLong b)))))))
-
-;; (defn deduce-version-from-git
-;;   "Avoid another decade of pointless, unnecessary and error-prone
-;;   fiddling with version labels in source code."
-;;   []
-;;   (let [[version commits hash dirty?]
-;;         (next (re-matches #"(.*?)-(.*?)-(.*?)(-dirty)?\n"
-;;                           (:out (sh/sh "git" "describe" "--dirty" "--long" "--tags" "--match" "[0-9].*"))))]
-;;     (cond
-;;       dirty? (str (next-version version) "-" hash "-dirty")
-;;       (pos? (Long/parseLong commits)) (str (next-version version) "-" hash)
-;;       :otherwise version)))
-
 (def repl-port 5600)
 (def project "ping")
 (def version "0.0.1-SNAPSHOT" ;(deduce-version-from-git)
@@ -32,9 +14,8 @@
  '[[adzerk/boot-cljs "1.7.228-1" :scope "test"]
    [adzerk/boot-cljs-repl "0.3.3" :scope "test"]
    [adzerk/boot-reload "0.5.1" :scope "test"]
-   [weasel "0.7.0" :scope "test"] ;; Websocket Server
-   [deraen/boot-sass "0.3.0" :scope "test"]
    [reloaded.repl "0.2.3" :scope "test"]
+   [weasel "0.7.0" :scope "test"]
 
    [org.clojure/clojure "1.9.0-alpha14"]
    [org.clojure/clojurescript "1.9.229"]
@@ -51,7 +32,6 @@
    [hiccup "1.0.5"]
    [org.clojure/tools.namespace "0.2.11"]
    [prismatic/schema "1.1.3"]
-   [selmer "1.10.6"]
    [yada "1.2.1" :exclusions [aleph manifold ring-swagger prismatic/schema]]
 
    [aleph "0.4.2-alpha8"]
@@ -59,8 +39,10 @@
    [metosin/ring-swagger "0.22.10"]
 
    ;; App deps
-   [reagent "0.6.0"]
+   [reagent "0.6.1"]
    [com.cognitect/transit-clj "0.8.297"]
+   [cljsjs/material "1.3.0-0"]
+   [hiccups "0.3.0"]
 
    ;; Logging
    [org.clojure/tools.logging "0.3.1"]
@@ -72,7 +54,6 @@
 (require '[adzerk.boot-cljs :refer [cljs]]
          '[adzerk.boot-cljs-repl :refer [cljs-repl start-repl]]
          '[adzerk.boot-reload :refer [reload]]
-         '[deraen.boot-sass :refer [sass]]
          '[com.stuartsierra.component :as component]
          'clojure.tools.namespace.repl
          '[ping.system :refer [new-system]])
@@ -114,7 +95,6 @@
   (comp
    (watch)
    (speak)
-   ;(sass :output-style :expanded)
    (reload :on-jsload 'ping.main/init)
    (cljs-repl :nrepl-opts {:client false
                            :port repl-port
@@ -126,9 +106,7 @@
 (deftask static
   "This is used for creating optimized static resources under static"
   []
-  (comp
-   (sass :output-style :compressed)
-   (cljs :ids #{"ping"} :optimizations :advanced)))
+  (cljs :ids #{"ping"} :optimizations :advanced))
 
 (deftask build
   []
