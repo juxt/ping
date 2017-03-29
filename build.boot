@@ -33,6 +33,7 @@
    [org.clojure/tools.namespace "0.2.11"]
    [prismatic/schema "1.1.3"]
    [yada "1.2.1" :exclusions [aleph manifold ring-swagger prismatic/schema]]
+   [tick "0.2.1"]
 
    [aleph "0.4.2-alpha8"]
    [manifold "0.1.6-alpha1"]
