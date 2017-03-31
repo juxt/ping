@@ -3,13 +3,14 @@
             [cljs.core.async :refer [>! <! chan]]))
 
 (def model (r/atom {:channel (chan 20)
-                    :diagnostics [{:msg "some-date" :status "some-status"}]}))
+                    :diagnostics [{:msg "2017/03/31" :status "ONish"}
+                                  {:msg "2017/03/30" :status "ONish"}]}))
 
 (defn create-status [msg status]
   {:msg msg :status status})
 
 (defn update-model [mval k item]
-  (let [nval (-> mval k (conj item))]
+  (let [nval (->> mval k (into [item]))]
     (assoc mval k nval)))
 
 (defn add-state
