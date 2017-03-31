@@ -1,3 +1,3 @@
-{:require  [ping.main]
- :init-fns [ping.main/init]
+{:require  [cljs.ping.main]
+ :init-fns [cljs.ping.main/init]
  :compiler-options {}}

@@ -5,6 +5,9 @@
    [cljsjs.material]
    [reagent.core :as r]))
 
+(def state (r/atom {:time "17/07/2022" :status "OK"}))
+(def testing (r/atom [:div "TESTING"]))
+
 (def upgrade-dom (.. js/componentHandler -upgradeDom))
 
 (defn mdl [& children]
@@ -33,7 +36,12 @@
    ])
 
 (defn run []
-  (compose content))
+  
+  (js/setTimeout #(do (swap! testing (fn [x] (conj x [:div "testing"])))
+                      (run)
+                      (r/render @testing (.getElementById js/document "container"))) 2000)
+  @testing
+  )
 
 (defn init []
-  (init-container #(compose content)))
+  (init-container run))
