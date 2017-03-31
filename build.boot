@@ -31,6 +31,7 @@
    [com.stuartsierra/component "0.3.2"]
    [hiccup "1.0.5"]
    [org.clojure/tools.namespace "0.2.11"]
+   [org.clojure/data.json "0.2.6"]
    [prismatic/schema "1.1.3"]
    [yada "1.2.1" :exclusions [aleph manifold ring-swagger prismatic/schema]]
    [tick "0.2.1"]

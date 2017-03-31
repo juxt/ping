@@ -1,6 +1,7 @@
 (ns ping.event
   (:require
-   [clojure.core.async :refer [go >!]]))
+   [clojure.core.async :refer [go >!]]
+   [clojure.data.json :as json :refer [write-str]]))
 
 (def history (atom []))
 
@@ -13,7 +14,7 @@
   event)
 
 (defn send [channel event]
-  (go (>! channel (str event))))
+  (go (>! channel (json/write-str event))))
 
 (defn send-history [channel]
-  (go (>! channel (str @history))))
+  (go (>! channel (json/write-str @history))))

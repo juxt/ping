@@ -37,7 +37,8 @@
        :methods
        {:get
         {:produces #{"text/html"}
-         :response "test index"}}})]
+         :response (fn [ctx]
+                     (io/file "assets/index.html"))}}})]
 
     ["testing"
      (yada/resource
@@ -47,7 +48,7 @@
         {:produces #{"text/text"}
          :response (fn [ctx]
                      (send-event-history component))}}})]
-    ["events/events"
+    ["events"
      (yada/resource
       {:id :ping.resources/events
        :methods
