@@ -48,7 +48,7 @@
         {:produces #{"text/text"}
          :response (fn [ctx]
                      (send-event-history component))}}})]
-    ["events"
+    ["events/events"
      (yada/resource
       {:id :ping.resources/events
        :methods
