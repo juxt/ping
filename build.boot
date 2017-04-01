@@ -36,6 +36,7 @@
    [yada "1.2.1" :exclusions [aleph manifold ring-swagger prismatic/schema]]
    [tick "0.2.1"]
    [org.clojure/core.async "0.3.442"]
+   [clj-http "2.3.0"]
 
    [aleph "0.4.2-alpha8"]
    [manifold "0.1.6-alpha1"]

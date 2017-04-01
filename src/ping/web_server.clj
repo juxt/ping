@@ -11,22 +11,25 @@
    [schema.core :as s]
    [yada.resources.webjar-resource :refer [new-webjar-resource]]
    [yada.yada :refer [handler resource] :as yada]
-   [clojure.core.async :refer [go >! chan tap mult]]
-   [ping.event :as event]))
+   [clojure.core.async :refer [chan mult]]
+   [ping.event :as event]
+   [ping.comm :as comm]
+   [ping.parser :as parser]))
 
-(defn- send-event-history [component]
-  (event/send-history (:channel component))
+(defn- send-event-history [{:keys [channel]}]
+  (event/send-history channel)
   (str @event/history))
 
-(defn- send-event [component]
-  (let [channel (:channel component)
-        multiple (:mult component)
-        ;; TODO: remove dummy event
-        event (event/build "2016-08-03" "Failure")]
-    (tap multiple channel)
-    (event/store event)
-    (event/send channel event)
-    channel))
+(defn- event-flow [{:keys [channel mult]}]
+  (let [dummy-time "2017/03/15"]
+    (->>
+     ;; TODO: add tick functionality (for now, only 1 event is sent)
+     ;; TODO: replace with: (comm/call-diagnose-server)
+     (comm/call-diagnose-server-mock)
+     (parser/parse)
+     (event/build dummy-time)
+     (event/store)
+     (event/send channel mult))))
 
 (defn content-routes [component]
   ["/"
@@ -45,8 +48,9 @@
       {:id :ping.resource/testing
        :methods
        {:get
-        {:produces #{"text/text"}
+        {:produces #{"text/html"}
          :response (fn [ctx]
+                     (println ctx)
                      (send-event-history component))}}})]
     ["events/events"
      (yada/resource
@@ -55,7 +59,7 @@
        {:get
         {:produces #{"text/event-stream"}
          :response (fn [ctx]
-                     (send-event component))}}})]
+                     (event-flow component))}}})]
     ["" (assoc (yada/redirect :ping.resources/index) :id :ping.resources/content)]
 
     ;; Add some pairs (as vectors) here. First item is the path, second is the handler.

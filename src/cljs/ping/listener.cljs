@@ -12,6 +12,9 @@
 (defn process [e f]
   (-> e .-data f))
 
+(defn json-to-map [json]
+  (js->clj (.parse js/JSON json) :keywordize-keys true))
+
 (defn put [channel data]
   (go (>! channel data)))
 
@@ -20,14 +23,15 @@
     (.addEventListener srev "message"
                        (fn [e]
                          (do
-                           ;; (js/alert (str "MESSAGE RECEIVED" (.-data e)))
-                           ;; TODO: change the read-string to a more able parser;
-                           (put channel (process e read-string)))))
+          ;                  (js/alert (str "MESSAGE RECEIVED" (.-data e)))
+                           (put channel (process e json-to-map)))))
     (go-loop []
       (when-let [input (<! channel)]
-        ;; (js/alert "NEW MESSAGE ON CHANNEL")
-        ;; update model
+        (js/alert (str "NEW MESSAGE ON CHANNEL" input))
+
+        ;; update model TODO: should we parse a list of maps?
         (apply s/add-state ((juxt :msg :status) input))
+
         ;; render component
         (w/render-id comp-fn id))
       (recur))))
