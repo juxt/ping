@@ -1,30 +1,26 @@
 (ns ping.core
-  (:require [tick.core :refer [minutes]]
-            [tick.timeline :refer [timeline periodic-seq]]
-            [tick.clock :refer [now clock-ticking-in-seconds]]
-            [tick.schedule :refer [schedule start stop]]
-            [ping.state :as state]))
+  [:require
+   [ping.tick :as tick]
+   [ping.event :as event]
+   [ping.parser :as parser]
+   [ping.comm :as comm]])
 
-(defn- create-timeline [interval]
-  (timeline (periodic-seq (now) (minutes interval))))
+(defn- event-flow [channel tick-time]
+  (let [timestamp (tick/extract-datetime tick-time)]
+    (->>
+     ;; TODO: replace with: (comm/call-diagnose-server)
+     (comm/call-diagnose-server-mock)
+     (parser/parse)
+     (event/build timestamp)
+     (event/store)
+     (event/send-event channel))))
 
-(defn- create-scheduler [f tline]
-  (schedule f tline))
-
-(defn- store-scheduler [sch]
-  (swap! state/schedulers conj sch))
-
-(defn- start-scheduler [sch]
-  @(start sch (clock-ticking-in-seconds)))
-
-(defn extract-datetime [tick-date]
-  (-> tick-date :tick/date .toLocalDateTime .toString))
-
-(defn scheduler-flow [f interval]
-  (let [tline (create-timeline interval)
-        sch (create-scheduler f tline)]
-    (store-scheduler sch)
-    (start-scheduler sch)))
+(defn setup-scheduler-flow [channel]
+  ;;TODO: read the hard-coded value of 1 min from edn file
+  (future (tick/scheduler-flow (partial event-flow channel) 1)))
 
 (defn stop-schedulers []
-  (map #(stop %) @state/schedulers))
+  (tick/stop-schedulers))
+
+(defn register-channel [mult]
+  (event/create-channel mult))

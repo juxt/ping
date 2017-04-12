@@ -9,29 +9,14 @@
    [clojure.java.io :as io]
    [hiccup.core :refer [html]]
    [schema.core :as s]
+   [clojure.core.async :refer [chan mult]]
    [yada.resources.webjar-resource :refer [new-webjar-resource]]
    [yada.yada :refer [handler resource] :as yada]
-   [clojure.core.async :refer [chan mult]]
-   [ping.event :as event]
-   [ping.comm :as comm]
-   [ping.parser :as parser]
-   [ping.state :as state]
    [ping.core :as core]))
 
-(defn- send-event-history [{:keys [channel]}]
-  (event/send-history channel)
-  (str @state/event-history))
-
-(defn- event-flow [channel mult tick-time]
-  (let [timestamp (core/extract-datetime tick-time)
-        _ (println " timestamp: " timestamp)]
-    (->>
-     ;; TODO: replace with: (comm/call-diagnose-server)
-     (comm/call-diagnose-server-mock)
-     (parser/parse)
-     (event/build timestamp)
-     (event/store)
-     (event/send-event channel mult))))
+(defn- setup-scheduler [channel]
+  (core/setup-scheduler-flow channel)
+  (io/file "assets/index.html"))
 
 (defn content-routes [component]
   ["/"
@@ -43,21 +28,17 @@
        {:get
         {:produces #{"text/html"}
          :response (fn [ctx]
-                     (do
-                       ;;TODO: read the hard-coded value of 1 min from edn file
-                       (future (core/scheduler-flow
-                                (partial event-flow (:channel component) (:mult component)) 1))
+                     (setup-scheduler (:channel component)))}}})]
 
-                       (io/file "assets/index.html")))}}})]
+    ;; ["testing"
+    ;;  (yada/resource
+    ;;   {:id :ping.resource/testing
+    ;;    :methods
+    ;;    {:get
+    ;;     {:produces #{"text/html"}
+    ;;      :response (fn [ctx]
+    ;;                  (send-event-history component))}}})]
 
-    ["testing"
-     (yada/resource
-      {:id :ping.resource/testing
-       :methods
-       {:get
-        {:produces #{"text/html"}
-         :response (fn [ctx]
-                     (send-event-history component))}}})]
     ["events/events"
      (yada/resource
       {:id :ping.resources/events
@@ -65,8 +46,8 @@
        {:get
         {:produces #{"text/event-stream"}
          :response (fn [ctx]
-                     (event/send-event (:channel component)
-                                       (:mult component)))}}})]
+                     (core/register-channel (:mult component)))}}})]
+
     ["" (assoc (yada/redirect :ping.resources/index) :id :ping.resources/content)]
 
     ;; Add some pairs (as vectors) here. First item is the path, second is the handler.

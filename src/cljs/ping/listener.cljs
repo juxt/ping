@@ -27,7 +27,7 @@
                            (put channel (process e json-to-map)))))
     (go-loop []
       (when-let [input (<! channel)]
-        (js/alert (str "NEW MESSAGE ON CHANNEL" input))
+        ; (js/alert (str "NEW MESSAGE ON CHANNEL" input))
 
         ;; update model TODO: should we parse a list of maps?
         (apply s/add-state ((juxt :msg :status) input))
