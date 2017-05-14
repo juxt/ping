@@ -24,3 +24,6 @@
 
 (defn register-channel [mult]
   (event/create-channel mult))
+
+(defn send-history [channel]
+  (event/send-history channel))

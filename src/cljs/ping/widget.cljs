@@ -34,9 +34,9 @@
   [mdl
    [header]
    [:div.demo-blog.mdl-layout.mdl-js-layout.is-upgraded
-    [:div.mdl-layout__content    
+    [:div.mdl-layout__content
      [:div.ping.mdl-grid
-      [:div.mdl-card.mdl-cell.mdl-cell--8-col       
+      [:div.mdl-card.mdl-cell.mdl-cell--8-col
         (apply conj [:div.mdl-card__text
                        {:id "pagecontent"}]
                  [(content-fn)])]]]]])
@@ -74,10 +74,11 @@
   (let [timelineh (table-hdata "Status time collection" :mdl-data-table__cell--non-numeric :mdl-typography--display-2 :mdl-typography--font-thin)
         statush (table-hdata "Status info" :mdl-typography--display-1 :mdl-typography--font-thin)
         header (table-row timelineh statush)
-        rows (or rows (map #(identity (table-row (table-data "2017/03/31" :mdl-data-table__cell--non-numeric :juxt-font)
-                                                 (table-data "OK" :juxt-inverted-font)))
-                           (range 1 100));;TODO: remove the or; just for testing UI
-                 )]
+        ;; rows (or rows (map #(identity (table-row (table-data "2017/03/31" :mdl-data-table__cell--non-numeric :juxt-font)
+        ;;                                          (table-data "OK" :juxt-inverted-font)))
+        ;;                    (range 1 100));;TODO: remove the or; just for testing UI
+        ;;          )
+        ]
     (apply table header rows)))
 
 ;; others

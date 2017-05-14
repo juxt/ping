@@ -18,6 +18,11 @@
   (core/setup-scheduler-flow channel)
   (io/file "assets/index.html"))
 
+(defn- init-channel [mult]
+  (->>
+   (core/register-channel mult)
+   (core/send-history)))
+
 (defn content-routes [component]
   ["/"
    [
@@ -46,7 +51,7 @@
        {:get
         {:produces #{"text/event-stream"}
          :response (fn [ctx]
-                     (core/register-channel (:mult component)))}}})]
+                     (init-channel (:mult component)))}}})]
 
     ["" (assoc (yada/redirect :ping.resources/index) :id :ping.resources/content)]
 

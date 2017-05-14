@@ -15,7 +15,8 @@
 
 ;; * compose ui
 (defn compose-infos
-  ([] (apply compose-infos (-> state deref :diagnostics)))
+  ([] (when (-> state deref :diagnostics empty? not)
+        (apply compose-infos (-> state deref :diagnostics))))
   ([& inputs]
    (apply w/ping-table (map (fn [{msg :msg status :status :as input}]
                               (w/table-row (w/table-data msg :mdl-data-table__cell--non-numeric :juxt-font)
