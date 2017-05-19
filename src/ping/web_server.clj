@@ -14,14 +14,14 @@
    [yada.yada :refer [handler resource] :as yada]
    [ping.core :as core]))
 
-(defn- setup-scheduler [channel]
-  (core/setup-scheduler-flow channel)
+(defn- setup-scheduler [channel ping-interval]
+  (core/setup-scheduler-flow channel ping-interval)
   (io/file "assets/index.html"))
 
-(defn- init-channel [mult]
+(defn- init-channel [mult history-size]
   (->>
    (core/register-channel mult)
-   (core/send-history)))
+   (core/send-history history-size)))
 
 (defn content-routes [component]
   ["/"
@@ -33,7 +33,8 @@
        {:get
         {:produces #{"text/html"}
          :response (fn [ctx]
-                     (setup-scheduler (:channel component)))}}})]
+                     (setup-scheduler (:channel component)
+                                      (:ping-interval component)))}}})]
 
     ;; ["testing"
     ;;  (yada/resource
@@ -51,7 +52,8 @@
        {:get
         {:produces #{"text/event-stream"}
          :response (fn [ctx]
-                     (init-channel (:mult component)))}}})]
+                     (init-channel (:mult component)
+                                   (:history-size component)))}}})]
 
     ["" (assoc (yada/redirect :ping.resources/index) :id :ping.resources/content)]
 

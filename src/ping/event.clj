@@ -22,7 +22,6 @@
   (go (>! channel (json/write-str event)))
   channel)
 
-(defn send-history [channel]
- ; (println "sending history: " @state/event-history)
-  (go (>! channel (json/write-str @state/event-history)))
+(defn send-history [history-size channel]
+  (go (>! channel (json/write-str (reverse (take history-size @state/event-history)))))
   channel)

@@ -15,9 +15,8 @@
      (event/store)
      (event/send-event channel))))
 
-(defn setup-scheduler-flow [channel]
-  ;;TODO: read the hard-coded value of 1 min from edn file
-  (future (tick/scheduler-flow (partial event-flow channel) 1)))
+(defn setup-scheduler-flow [channel ping-interval]
+  (future (tick/scheduler-flow (partial event-flow channel) ping-interval)))
 
 (defn stop-schedulers []
   (tick/stop-schedulers))
@@ -25,5 +24,5 @@
 (defn register-channel [mult]
   (event/create-channel mult))
 
-(defn send-history [channel]
-  (event/send-history channel))
+(defn send-history [history-size channel]
+  (event/send-history history-size channel))
