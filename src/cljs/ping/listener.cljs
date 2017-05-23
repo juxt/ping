@@ -21,14 +21,6 @@
 (defn- add-state [input-map]
   (apply s/add-state ((juxt :msg :status) input-map)))
 
-(defn- add-history [input-vec]
-  (loop [im input-vec]
-    (if (= 0 (count im))
-      ""
-      (do
-        (add-state (first im))
-        (recur (rest im))))))
-
 (defn listen [id comp-fn url channel]
   (let [srev (new js/EventSource url)]
     (.addEventListener srev "message"
@@ -42,7 +34,7 @@
 
          (if (map? input)
            (add-state input)
-           (add-history input))
+           (doall (map add-state input)))
 
         ;; render component
         (w/render-id comp-fn id))
